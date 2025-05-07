@@ -3,62 +3,29 @@
 #include <climits>
 using namespace std;
 
-void min_reduction(int arr[], int n) {
-    int min_value = INT_MAX;
-    #pragma omp parallel for reduction(min: min_value)
-    for (int i = 0; i < n; i++) {
-        if (arr[i] < min_value) {
-            min_value = arr[i];
-        }
-    }
-    cout << "Minimum value: " << min_value << endl;
-}
-
-void max_reduction(int arr[], int n) {
-    int max_value = INT_MIN;
-    #pragma omp parallel for reduction(max: max_value)
-    for (int i = 0; i < n; i++) {
-        if (arr[i] > max_value) {
-            max_value = arr[i];
-        }
-    }
-    cout << "Maximum value: " << max_value << endl;
-}
-
-void sum_reduction(int arr[], int n) {
-    int sum = 0;
-    #pragma omp parallel for reduction(+: sum)
-    for (int i = 0; i < n; i++) {
-        sum += arr[i];
-    }
-    cout << "Sum: " << sum << endl;
-}
-
-void average_reduction(int arr[], int n) {
-    int sum = 0;
-    #pragma omp parallel for reduction(+: sum)
-    for (int i = 0; i < n; i++) {
-        sum += arr[i];
-    }
-    cout << "Average: " << (double)sum / n << endl;  // Corrected denominator to 'n'
-}
-
 int main() {
-    int *arr, n;
-    cout << "\nEnter total number of elements => ";
+    int n;
+    cout << "Enter number of elements: ";
     cin >> n;
-    
-    arr = new int[n];
-    cout << "\nEnter elements => ";
+
+    int* arr = new int[n];
+    cout << "Enter elements:\n";
+    for (int i = 0; i < n; i++) cin >> arr[i];
+
+    int min_val = INT_MAX, max_val = INT_MIN, sum = 0;
+
+    #pragma omp parallel for reduction(min:min_val) reduction(max:max_val) reduction(+:sum)
     for (int i = 0; i < n; i++) {
-        cin >> arr[i];
+        if (arr[i] < min_val) min_val = arr[i];
+        if (arr[i] > max_val) max_val = arr[i];
+        sum += arr[i];
     }
 
-    min_reduction(arr, n);
-    max_reduction(arr, n);
-    sum_reduction(arr, n);
-    average_reduction(arr, n);
+    cout << "Minimum: " << min_val << endl;
+    cout << "Maximum: " << max_val << endl;
+    cout << "Sum: " << sum << endl;
+    cout << "Average: " << (double)sum / n << endl;
 
-    delete[] arr;  // Don't forget to free the dynamically allocated memory.
+    delete[] arr;
     return 0;
 }
